@@ -1,0 +1,62 @@
+name: Build and Deploy Job Board
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1
+
+      # ---------- Step 1: Test the backend (basic CI check) ----------
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      # ---------- Step 2: Build a fresh AMI with Packer ----------
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@main
+        with:
+          version: "latest"
+
+      - name: Packer init
+        working-directory: ./packer
+        run: packer init .
+
+      - name: Build AMI
+        id: packer_build
+        working-directory: ./packer
+        run: |
+          packer build -machine-readable app.pkr.hcl | tee build.log
+          AMI_ID=$(grep 'artifact,0,id' build.log | cut -d, -f6 | cut -d: -f2)
+          echo "ami_id=$AMI_ID" >> "$GITHUB_OUTPUT"
+
+      # ---------- Step 3: Deploy infrastructure with Terraform ----------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Terraform apply
+        working-directory: ./terraform
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_ami_id: ${{ steps.packer_build.outputs.ami_id }}
+        run: terraform apply -auto-approve
+
+      - name: Show app URL
+        working-directory: ./terraform
+        run: terraform output alb_dns_name
