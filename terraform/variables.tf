@@ -28,5 +28,5 @@ variable "instance_type" {
 variable "key_pair_name" {
   description = "EC2 key pair name for SSH access (optional, create in AWS console first)"
   type        = string
-  default     = ""
+  default     = "job-board-key"
 }
