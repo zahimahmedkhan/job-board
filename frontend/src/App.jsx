@@ -48,13 +48,13 @@ function AuthScreen({ onAuthed }) {
         <form onSubmit={handleSubmit}>
           {mode === 'signup' && (
             <label>
-              {role === 'company' ? 'Your name' : 'Naam'}
+              {role === 'company' ? 'Your name' : 'Full name'}
               <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
             </label>
           )}
           {mode === 'signup' && role === 'company' && (
             <label>
-              Company ka naam
+              Company Name
               <input value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} required />
             </label>
           )}

@@ -1,6 +1,6 @@
 // api.js — talks to the Express backend running on EC2 (behind the ALB)
 // IMPORTANT: after deploying, replace this with your ALB DNS name
-const API_BASE = 'http://YOUR_ALB_DNS_NAME';
+const API_BASE = 'http://job-board-alb-1320435270.eu-north-1.elb.amazonaws.com';
 
 function authHeaders() {
   const token = localStorage.getItem('token');
