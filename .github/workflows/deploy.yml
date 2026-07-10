@@ -60,3 +60,27 @@ jobs:
       - name: Show app URL
         working-directory: ./terraform
         run: terraform output alb_dns_name
+
+      # ---------- Step 4: Build frontend with the live ALB URL, deploy to S3 ----------
+      - name: Get ALB DNS name
+        id: alb_url
+        working-directory: ./terraform
+        run: echo "url=$(terraform output -raw alb_dns_name)" >> "$GITHUB_OUTPUT"
+
+      - name: Inject API URL into frontend
+        working-directory: ./frontend/src
+        run: |
+          sed -i "s|http://YOUR_ALB_DNS_NAME|http://${{ steps.alb_url.outputs.url }}|g" api.js
+          sed -i "s|http://job-board-alb-[a-zA-Z0-9.-]*|http://${{ steps.alb_url.outputs.url }}|g" api.js
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Deploy frontend to S3
+        working-directory: ./frontend
+        run: aws s3 sync dist/ s3://job-board-site-zahim --delete
