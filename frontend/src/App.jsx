@@ -4,7 +4,6 @@ import {
   getApplicants, applyToJob, getMyApplications,
 } from './api.js';
 
-// ---------------- Auth ----------------
 function AuthScreen({ onAuthed }) {
   const [mode, setMode] = useState('login');
   const [role, setRole] = useState('candidate');
@@ -49,25 +48,25 @@ function AuthScreen({ onAuthed }) {
           {mode === 'signup' && (
             <label>
               {role === 'company' ? 'Your name' : 'Full name'}
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
             </label>
           )}
           {mode === 'signup' && role === 'company' && (
             <label>
               Company Name
-              <input value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} required />
+              <input value={form.companyName} onChange={e => setForm({ ...form, companyName: e.target.value })} required />
             </label>
           )}
           <label>
             Email
-            <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+            <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
           </label>
           <label>
             Password
-            <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+            <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
           </label>
           <button type="submit" className="primary-btn" disabled={busy}>
-            {busy ? 'Please wait…' : mode === 'login' ? 'Login' : 'Signup'}
+            {busy ? <> <span className="loading-spinner"></span> Please wait… </> : mode === 'login' ? 'Login' : 'Signup'}
           </button>
         </form>
         <button className="link-btn" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
@@ -78,7 +77,6 @@ function AuthScreen({ onAuthed }) {
   );
 }
 
-// ---------------- Job Card ----------------
 function JobCard({ job, onOpen }) {
   return (
     <button className="job-card" onClick={() => onOpen(job.id)}>
@@ -90,24 +88,22 @@ function JobCard({ job, onOpen }) {
   );
 }
 
-// ---------------- Job List (browse) ----------------
 function JobList({ onOpen }) {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { getJobs().then(setJobs).finally(() => setLoading(false)); }, []);
 
-  if (loading) return <p className="status-msg">Loading jobs…</p>;
-  if (jobs.length === 0) return <p className="status-msg">No jobs posted yet.</p>;
+  if (loading) return <p className="status-msg"><span className="loading-spinner"></span>Loading jobs…</p>;
+  if (jobs.length === 0) return <div className="empty-state"><h3>No jobs posted yet</h3><p>Be the first to post a job!</p></div>;
 
   return (
     <div className="job-grid">
-      {jobs.map((job) => <JobCard key={job.id} job={job} onOpen={onOpen} />)}
+      {jobs.map(job => <JobCard key={job.id} job={job} onOpen={onOpen} />)}
     </div>
   );
 }
 
-// ---------------- Job Detail + Apply ----------------
 function JobDetail({ jobId, user, onBack }) {
   const [job, setJob] = useState(null);
   const [coverNote, setCoverNote] = useState('');
@@ -130,7 +126,7 @@ function JobDetail({ jobId, user, onBack }) {
     }
   }
 
-  if (!job) return <p className="status-msg">Loading…</p>;
+  if (!job) return <p className="status-msg"><span className="loading-spinner"></span>Loading…</p>;
 
   return (
     <div className="detail-view">
@@ -144,7 +140,7 @@ function JobDetail({ jobId, user, onBack }) {
         <div className="apply-box">
           <h4>Apply to this job</h4>
           {status === 'success' ? (
-            <p className="success-msg">Application submitted! 🎉</p>
+            <p className="success-msg">Application submitted!</p>
           ) : (
             <form onSubmit={handleApply}>
               {status && status !== 'success' && <p className="form-error">{status}</p>}
@@ -152,10 +148,10 @@ function JobDetail({ jobId, user, onBack }) {
                 placeholder="Write a short cover note (optional)…"
                 rows={4}
                 value={coverNote}
-                onChange={(e) => setCoverNote(e.target.value)}
+                onChange={e => setCoverNote(e.target.value)}
               />
               <button type="submit" className="primary-btn" disabled={busy}>
-                {busy ? 'Submitting…' : 'Apply'}
+                {busy ? <> <span className="loading-spinner"></span> Submitting… </> : 'Apply'}
               </button>
             </form>
           )}
@@ -166,9 +162,8 @@ function JobDetail({ jobId, user, onBack }) {
   );
 }
 
-// ---------------- Post a Job (company) ----------------
 function PostJobForm({ onPosted }) {
-  const [form, setForm] = useState({ title: '', description: '', location: '', salary: '', jobType: 'Full-time' });
+  const [form, setForm] = useState({ title: '', description: '', location: '', salary: '$', jobType: 'Full-time' });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -178,7 +173,7 @@ function PostJobForm({ onPosted }) {
     setError('');
     try {
       await postJob(form);
-      setForm({ title: '', description: '', location: '', salary: '', jobType: 'Full-time' });
+      setForm({ title: '', description: '', location: '', salary: '$', jobType: 'Full-time' });
       onPosted();
     } catch (err) {
       setError(err.message);
@@ -193,25 +188,25 @@ function PostJobForm({ onPosted }) {
       {error && <p className="form-error">{error}</p>}
       <label>
         Job Title
-        <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+        <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required />
       </label>
       <label>
         Description
-        <textarea rows={5} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
+        <textarea rows={5} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} required />
       </label>
       <div className="form-row">
         <label>
           Location
-          <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Karachi / Remote" />
+          <input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder="Karachi / Remote" />
         </label>
-        <label>
+        <label className="salary-input-wrapper">
           Salary
-          <input value={form.salary} onChange={(e) => setForm({ ...form, salary: e.target.value })} placeholder="PKR 80,000 - 120,000" />
+          <input value={form.salary} onChange={e => setForm({ ...form, salary: e.target.value })} placeholder="80,000 - 120,000" />
         </label>
       </div>
       <label>
         Job Type
-        <select value={form.jobType} onChange={(e) => setForm({ ...form, jobType: e.target.value })}>
+        <select value={form.jobType} onChange={e => setForm({ ...form, jobType: e.target.value })}>
           <option>Full-time</option>
           <option>Part-time</option>
           <option>Contract</option>
@@ -219,13 +214,12 @@ function PostJobForm({ onPosted }) {
         </select>
       </label>
       <button type="submit" className="primary-btn" disabled={busy}>
-        {busy ? 'Posting…' : 'Post Job'}
+        {busy ? <> <span className="loading-spinner"></span> Posting… </> : 'Post Job'}
       </button>
     </form>
   );
 }
 
-// ---------------- My Jobs + Applicants (company) ----------------
 function MyJobs() {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
@@ -248,10 +242,10 @@ function MyJobs() {
         <button className="back-btn" onClick={() => setSelectedJob(null)}>&larr; Back to my jobs</button>
         <h2>{selectedJob.title} — Applicants</h2>
         {applicants.length === 0 ? (
-          <p className="status-msg">No one has applied yet.</p>
+          <div className="empty-state"><h3>No applicants yet</h3><p>Share the job to attract candidates.</p></div>
         ) : (
           <ul className="applicants-list">
-            {applicants.map((a) => (
+            {applicants.map(a => (
               <li key={a.id} className="applicant-card">
                 <strong>{a.name}</strong> <span className="applicant-email">({a.email})</span>
                 {a.cover_note && <p>{a.cover_note}</p>}
@@ -263,12 +257,12 @@ function MyJobs() {
     );
   }
 
-  if (loading) return <p className="status-msg">Loading…</p>;
-  if (jobs.length === 0) return <p className="status-msg">You haven't posted any jobs yet.</p>;
+  if (loading) return <p className="status-msg"><span className="loading-spinner"></span>Loading…</p>;
+  if (jobs.length === 0) return <div className="empty-state"><h3>No jobs posted yet</h3><p>Get started by posting your first job.</p></div>;
 
   return (
     <div className="my-jobs-list">
-      {jobs.map((job) => (
+      {jobs.map(job => (
         <div key={job.id} className="my-job-row">
           <div>
             <h3>{job.title}</h3>
@@ -281,19 +275,18 @@ function MyJobs() {
   );
 }
 
-// ---------------- My Applications (candidate) ----------------
 function MyApplications() {
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { getMyApplications().then(setApps).finally(() => setLoading(false)); }, []);
 
-  if (loading) return <p className="status-msg">Loading…</p>;
-  if (apps.length === 0) return <p className="status-msg">You haven't applied to any jobs yet.</p>;
+  if (loading) return <p className="status-msg"><span className="loading-spinner"></span>Loading…</p>;
+  if (apps.length === 0) return <div className="empty-state"><h3>No applications yet</h3><p>Start browsing jobs and apply to get started.</p></div>;
 
   return (
     <ul className="applications-list">
-      {apps.map((a) => (
+      {apps.map(a => (
         <li key={a.id} className="application-card">
           <h3>{a.title}</h3>
           <p className="job-meta">{a.company_name} · {a.location || 'Remote'}</p>
@@ -303,55 +296,51 @@ function MyApplications() {
   );
 }
 
-// ---------------- App Shell ----------------
 export default function App() {
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('user');
     return stored ? JSON.parse(stored) : null;
   });
-  const [page, setPage] = useState('jobs');
-  const [selectedJobId, setSelectedJobId] = useState(null);
 
-  function handleLogout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const [view, setView] = useState('browse');
+  const [jobId, setJobId] = useState(null);
+
+  function logout() {
+    localStorage.clear();
     setUser(null);
-    setPage('jobs');
+    setView('browse');
   }
 
-  function openJob(id) {
-    setSelectedJobId(id);
-    setPage('jobDetail');
+  if (!user) {
+    return <AuthScreen onAuthed={setUser} />;
   }
-
-  if (!user) return <AuthScreen onAuthed={setUser} />;
 
   return (
     <div className="app-shell">
       <header className="site-header">
-        <h1 onClick={() => setPage('jobs')}>HireHub</h1>
+        <h1 onClick={() => { setJobId(null); setView('browse'); }}>HireHub</h1>
         <nav>
-          <button className={page === 'jobs' ? 'nav-active' : ''} onClick={() => setPage('jobs')}>Browse Jobs</button>
+          <button className={view === 'browse' ? 'nav-active' : ''} onClick={() => { setJobId(null); setView('browse'); }}>Browse Jobs</button>
           {user.role === 'company' && (
-            <>
-              <button className={page === 'postJob' ? 'nav-active' : ''} onClick={() => setPage('postJob')}>Post a Job</button>
-              <button className={page === 'myJobs' ? 'nav-active' : ''} onClick={() => setPage('myJobs')}>My Jobs</button>
-            </>
+            <button className={view === 'post' ? 'nav-active' : ''} onClick={() => { setJobId(null); setView('post'); }}>Post a Job</button>
+          )}
+          {user.role === 'company' && (
+            <button className={view === 'myjobs' ? 'nav-active' : ''} onClick={() => { setJobId(null); setView('myjobs'); }}>My Jobs</button>
           )}
           {user.role === 'candidate' && (
-            <button className={page === 'myApplications' ? 'nav-active' : ''} onClick={() => setPage('myApplications')}>My Applications</button>
+            <button className={view === 'myapps' ? 'nav-active' : ''} onClick={() => { setJobId(null); setView('myapps'); }}>My Applications</button>
           )}
-          <span className="user-badge">{user.name} ({user.role})</span>
-          <button className="link-btn" onClick={handleLogout}>Logout</button>
+          <span className="user-badge">{user.role === 'company' ? 'Company' : 'Candidate'}</span>
+          <button className="link-btn danger" onClick={logout}>Logout</button>
         </nav>
       </header>
 
       <main>
-        {page === 'jobs' && <JobList onOpen={openJob} />}
-        {page === 'jobDetail' && <JobDetail jobId={selectedJobId} user={user} onBack={() => setPage('jobs')} />}
-        {page === 'postJob' && user.role === 'company' && <PostJobForm onPosted={() => setPage('myJobs')} />}
-        {page === 'myJobs' && user.role === 'company' && <MyJobs />}
-        {page === 'myApplications' && user.role === 'candidate' && <MyApplications />}
+        {view === 'browse' && <JobList onOpen={id => { setJobId(id); setView('detail'); }} />}
+        {view === 'detail' && jobId && <JobDetail jobId={jobId} user={user} onBack={() => { setJobId(null); setView('browse'); }} />}
+        {view === 'post' && <PostJobForm onPosted={() => setView('myjobs')} />}
+        {view === 'myjobs' && <MyJobs />}
+        {view === 'myapps' && <MyApplications />}
       </main>
     </div>
   );
