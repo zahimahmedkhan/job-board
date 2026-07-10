@@ -238,10 +238,12 @@ resource "aws_launch_template" "app" {
     JWT_SECRET=${var.db_password}change_this
     PORT=5000
     EOT
+    systemctl daemon-reload
+    systemctl enable job-board
     systemctl restart job-board
   EOF
   )
-
+  
   tag_specifications {
     resource_type = "instance"
     tags          = { Name = "${var.project_name}-instance" }

@@ -46,23 +46,20 @@ build {
       "sudo bash -c 'cat > /etc/systemd/system/job-board.service' <<'EOT'",
       "[Unit]",
       "Description=Job Board Backend",
-      "After=network-online.target cloud-final.service",
-      "Wants=network-online.target cloud-final.service",
+      "After=network.target",
       "",
       "[Service]",
       "EnvironmentFile=/etc/job-board.env",
       "ExecStart=/usr/bin/node /opt/job-board/server.js",
       "Restart=always",
       "RestartSec=5",
-      "StartLimitIntervalSec=0",
       "User=ec2-user",
       "",
       "[Install]",
       "WantedBy=multi-user.target",
       "EOT",
 
-      "sudo systemctl daemon-reload",
-      "sudo systemctl enable job-board"
+      "sudo systemctl daemon-reload"
     ]
   }
 }
