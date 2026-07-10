@@ -479,14 +479,13 @@ input, textarea, select {
 .form-row { display: flex; gap: 1.25rem; }
 .form-row .form-group { flex: 1; margin-bottom: 0; }
 
-.salary-input-wrapper { position: relative; }
+.salary-input-wrapper { position: relative; display: block; }
 .salary-input-wrapper input { padding-left: 1.75rem; }
 .salary-input-wrapper::before {
   content: '$';
   position: absolute;
   left: 0.875rem;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 46%;
   color: var(--ink-muted);
   font-size: 0.9375rem;
   font-weight: 500;

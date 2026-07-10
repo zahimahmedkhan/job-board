@@ -163,7 +163,7 @@ function JobDetail({ jobId, user, onBack }) {
 }
 
 function PostJobForm({ onPosted }) {
-  const [form, setForm] = useState({ title: '', description: '', location: '', salary: '$', jobType: 'Full-time' });
+  const [form, setForm] = useState({ title: '', description: '', location: '', salary: '', jobType: 'Full-time' });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -173,7 +173,7 @@ function PostJobForm({ onPosted }) {
     setError('');
     try {
       await postJob(form);
-      setForm({ title: '', description: '', location: '', salary: '$', jobType: 'Full-time' });
+      setForm({ title: '', description: '', location: '', salary: '', jobType: 'Full-time' });
       onPosted();
     } catch (err) {
       setError(err.message);
